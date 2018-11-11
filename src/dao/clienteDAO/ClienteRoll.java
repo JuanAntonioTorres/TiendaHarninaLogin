@@ -1,11 +1,10 @@
 package dao.clienteDAO;
 
 import dao.AccesoDB;
+import entity.ClientEntity;
 
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.lang.reflect.Field;
+import java.sql.*;
 
 public class ClienteRoll {
 
@@ -40,16 +39,35 @@ public class ClienteRoll {
 
     // Uso de procedures
 
-    public boolean  add_cliente(String dni, String apellidos, String nombre, String cp ) throws SQLException {
+    public boolean comprobarLogin(String usuario,String password) throws SQLException, NoSuchFieldException {
         this.conectar();
-        CallableStatement cstmt = (CallableStatement) acceso.getConexion().prepareCall("{call add_cliente(?, ?, ?, ?, ?)}");
-        cstmt.setString(1,dni);
-        cstmt.setString(2,apellidos);
-        cstmt.setString(3,nombre);
-        cstmt.setString(4,cp);
-        cstmt.registerOutParameter(5, Types.BOOLEAN);
+        CallableStatement cstmt = (CallableStatement) acceso.getConexion().prepareCall("{call comprobarLogin(?, ?, ?)}");
+        cstmt.setString(1,usuario);
+        cstmt.setString(2,password);
+        cstmt.registerOutParameter(3, Types.BOOLEAN);
         cstmt.execute();
-        return  cstmt.getBoolean(5);
+        return  cstmt.getBoolean(3);
+    }
+
+    public boolean add_cliente(ClientEntity cliente) throws SQLException, NoSuchFieldException {
+        this.conectar();
+        CallableStatement cstmt = (CallableStatement) acceso.getConexion().prepareCall("{call add_cliente(?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+        cstmt.setString(1,cliente.getNifCliente());
+        cstmt.setString(2,cliente.getApellidosCliente());
+        cstmt.setString(3,cliente.getNombreCliente());
+        cstmt.setString(4,cliente.getCodigoPostalClient());
+        cstmt.setString(5,cliente.getDomicilioCliente());
+        cstmt.setString(6,cliente.getFechaNacimiento());
+        cstmt.setString(7,cliente.getTelefonoCliente());
+        cstmt.setString(8,cliente.getMovilCliente());
+        cstmt.setString(9,cliente.getSexoCliente());
+        cstmt.setString(10,cliente.getEmailCliente());
+        cstmt.setString(11,cliente.getImagenCliente());
+        cstmt.setString(12,cliente.getUsuarioCliente());
+        cstmt.setString(13,cliente.getPasswordCliente());
+        cstmt.registerOutParameter(14, Types.BOOLEAN);
+        cstmt.execute();
+        return  cstmt.getBoolean(14);
     }
 
 }

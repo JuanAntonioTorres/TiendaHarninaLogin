@@ -2,38 +2,22 @@ package entity;
 
 public class ClientEntity {
 
-    private String NifCliente; // varchar(9)
-    private String ApellidosCliente; // varchar(100)
-    private String NombreCliente; // varchar(50)
-    private String CodigoPostalClient; // varchar(5)
-    private String DomicilioCliente; // varchar(100)
-    private String FechaNacimiento; // date
-    private String TelefonoCliente;
-    private String MovilCliente;
-    private String SexoCliente; //char(1)
-    private String EmailCliente; // varchar(150)
-    private String ImagenCliente; // varchar(15)
-    private String UsuarioCliente; // varchar(7)
-    private String PasswordCliente; // varchar(50)
+    public String NifCliente; // varchar(9)
+    public String ApellidosCliente; // varchar(100)
+    public String NombreCliente; // varchar(50)
+    public String CodigoPostalClient; // varchar(5)
+    public String DomicilioCliente; // varchar(100)
+    public String FechaNacimiento; // date
+    public String TelefonoCliente;
+    public String MovilCliente;
+    public String SexoCliente; //char(1)
+    public String EmailCliente; // varchar(150)
+    public String ImagenCliente; // varchar(15)
+    public String UsuarioCliente; // varchar(7)
+    public String PasswordCliente; // varchar(50)
 
-    public ClientEntity(){
+    public ClientEntity() {
 
-    }
-
-    public ClientEntity(String nifCliente, String apellidosCliente, String nombreCliente, String codigoPostalClient, String domicilioCliente, String fechaNacimiento, String telefonoCliente, String movilCliente, String sexoCliente, String emailCliente, String imagenCliente, String usuarioCliente, String passwordCliente) {
-        NifCliente = nifCliente;
-        ApellidosCliente = apellidosCliente;
-        NombreCliente = nombreCliente;
-        CodigoPostalClient = codigoPostalClient;
-        DomicilioCliente = domicilioCliente;
-        FechaNacimiento = fechaNacimiento;
-        TelefonoCliente = telefonoCliente;
-        MovilCliente = movilCliente;
-        SexoCliente = sexoCliente;
-        EmailCliente = emailCliente;
-        ImagenCliente = imagenCliente;
-        UsuarioCliente = usuarioCliente;
-        PasswordCliente = passwordCliente;
     }
 
     public String getNifCliente() {

@@ -1,64 +1,62 @@
 package dao.clienteDAO;
 
 import entity.ClientEntity;
-
-import java.sql.ResultSet;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class ClienteDAO {
 
     ClienteRoll clienteRoll = new ClienteRoll();
 
-   public ArrayList<String> getProvincias() throws SQLException, ClassNotFoundException{
 
-        ArrayList<String> provincias = new ArrayList<String>();
+   public boolean add_cliente_procedure(ClientEntity cliente) throws NoSuchFieldException, SQLException {
+        return clienteRoll.add_cliente(cliente);
+   }
 
-        String sql = "SELECT * FROM provincia";
+    public boolean add_cliente(ClientEntity cliente) throws IllegalAccessException, SQLException {
 
-        ResultSet rs =  clienteRoll.getCursor(sql);
+        StringBuilder senteniaSQL = new StringBuilder();
 
-        while(rs.next())
-        {
-            String provincia = rs.getString("NombreProvincia");
-            provincias.add(provincia);
-        }
+        senteniaSQL.append("INSERT INTO `cliente`(");
 
-        return provincias;
+        Field[] camposCliente = cliente.getClass().getDeclaredFields();
+
+        formarParteUnoDeInsertClient(senteniaSQL, camposCliente);
+
+        formarParteDosDeInsertCliente(senteniaSQL, camposCliente);
+
+        System.out.println(senteniaSQL);
+
+        return clienteRoll.insertUpdateDelete(new String(senteniaSQL)) > 0;
+
     }
 
-   public int add_cliente(ClientEntity cliente) {
-       String sql = "INSERT INTO `cliente`(`NifCliente`, `ApellidosCliente`, `NombreCliente`, `CodigoPostalCliente`, `DomicilioCliente`, `FechaNacimiento`, `TelefonoCliente`, `MovilCliente`, `SexoCliente`, `EmailCliente`, `ImagenCliente`, `UsuarioCliente`, `PasswordCliente`) " + " VALUES ('" + cliente.getNifCliente() + "','" +
-               cliente.getApellidosCliente()+ "','" +
-               cliente.getNombreCliente()+ "','" +
-               cliente.getCodigoPostalClient()+ "','" +
-               cliente.getDomicilioCliente()+ "','" +
-               cliente.getFechaNacimiento()+ "','" +
-               cliente.getTelefonoCliente()+ "','" +
-               cliente.getMovilCliente()+ "','" +
-               cliente.getSexoCliente()+ "','" +
-               cliente.getEmailCliente()+ "','" +
-               cliente.getImagenCliente()+ "','" +
-               cliente.getUsuarioCliente()+ "','" +
-               cliente.getPasswordCliente()+ "')";
-
-       System.out.println(sql);
-        try {
-
-            return clienteRoll.insertUpdateDelete(sql);
-
-        } catch (SQLException e) {
-
-            return 0;
+    private void formarParteDosDeInsertCliente(StringBuilder senteniaSQL, Field[] camposCliente) throws IllegalAccessException {
+        for (int i = 0; i < camposCliente.length; i++) {
+            System.out.println(String.valueOf(senteniaSQL));
+            senteniaSQL.append(camposCliente[i].get(camposCliente[i].getName()));
+            if (i < camposCliente.length - 1) {
+                senteniaSQL.append(",");
+            } else {
+                senteniaSQL.append(")");
+            }
         }
     }
 
-   public boolean add_cliente_procedure() {
-        try {
-            return clienteRoll.add_cliente("77777777","lopez lopez","lolo","06200");
-        } catch (SQLException e) {
-            System.out.println("DAO false");
-            return false;
+    private void formarParteUnoDeInsertClient(StringBuilder senteniaSQL, Field[] camposCliente) {
+        for (int i = 0; i < camposCliente.length; i++) {
+            senteniaSQL.append(" '" + camposCliente[i].getName() + "' ");
+            if(i< camposCliente.length-1){
+                senteniaSQL.append(",");
+            }
+            else{
+                senteniaSQL.append(") VALUES (");
+            }
         }
+        System.out.println(String.valueOf(senteniaSQL));
+    }
+
+    public boolean validarLogin(String usuario, String password) throws NoSuchFieldException, SQLException {
+       return clienteRoll.comprobarLogin(usuario,password);
     }
 }

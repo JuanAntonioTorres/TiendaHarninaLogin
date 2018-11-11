@@ -9,7 +9,7 @@ STORE.namespace('STORE.list_input');
 
     eval("div_" + STORE.list_input[0].id).style.display = '';
 
-    if(document.getElementById("dniCliente").value == "null") {
+    if(STORE.list_input[0].value == "null") {
 
         for (var i = 1; i < STORE.list_input.length; i++) {
 
@@ -27,7 +27,7 @@ STORE.namespace('STORE.list_input');
 
         STORE.list_input[i].addEventListener("input",eval("STORE." + STORE.list_input[i].dataset.functioncallback),false);
 
-              if(document.getElementById("dniCliente").value == "null"){
+              if(STORE.list_input[0].value == "null"){
             STORE.list_input[i].style.backgroundColor = STORE.Error.get_colorError();
 
         }

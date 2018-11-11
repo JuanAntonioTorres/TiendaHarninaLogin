@@ -29,7 +29,11 @@
     </div>
   </div>
 
-<div><a href="clientInsert.jsp">Añadir Cliente</a></div>
+  <div class = "contenedorFilaW">
+    <div><a href="clientInsert.jsp">Añadir Cliente</a></div>
+    <div><a href="clientLogin.jsp">Login Cliente</a></div>
+  </div>
+
   <c:if test="${not empty error}">
     <div class="etiqueta s8">
         ${mensaje}

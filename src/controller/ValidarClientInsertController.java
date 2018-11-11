@@ -10,6 +10,8 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -19,14 +21,14 @@ import java.util.List;
 public class ValidarClientInsertController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     HttpSession session;
-
+    ClientEntity cliente;
 
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         session = request.getSession();
 
-        ClientEntity cliente = new ClientEntity();
+        cliente = new ClientEntity();
 
         request.setCharacterEncoding("UTF-8");
 
@@ -38,91 +40,33 @@ public class ValidarClientInsertController extends HttpServlet {
 
         RequestDispatcher rd = request.getRequestDispatcher("clientInsert.jsp");
 
-        cliente.setNifCliente(request.getParameter("dniCliente"));
-        session.setAttribute("dniCliente", cliente.getNifCliente());
+        new GuardadorDeDatosEnSession().guardarDatosSesion(request,session);
+
+        try {
+            new GeneradorDeObjetoConSession().generarObjeto(session,cliente);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         validador.add(new ValidacionDNINIECIF(cliente.getNifCliente()));
-        error += validar(validador);
+        validador.add(new ValidacionLetrasConEspacio(cliente.getNombreCliente()));
+        validador.add(new ValidacionLongitud(cliente.getNombreCliente(),3,50));
+        validador.add(new ValidacionLetrasConEspacio(cliente.getApellidosCliente()));
+        validador.add(new ValidacionLongitud(cliente.getApellidosCliente(),3,100));
+        validador.add(new ValidacionCodigoPostal(cliente.getCodigoPostalClient()));
+        validador.add(new ValidarDomicilio(cliente.getDomicilioCliente()));
+        validador.add(new ValidacionLongitud(cliente.getDomicilioCliente(),2,100));
+        validador.add(new ValidacionTelefonoSpain(cliente.getTelefonoCliente()));
+        validador.add(new ValidacionTelefonoSpain(cliente.getMovilCliente()));
+        validador.add(new ValidacionFecha(cliente.getFechaNacimiento()));
+        validador.add(new ValidacionSexo(cliente.getSexoCliente()));
+        validador.add(new ValidacionEmail(cliente.getEmailCliente()));
+        validador.add(new ValidacionUsuario(cliente.getUsuarioCliente()));
+        validador.add(new ValidacionPassword(cliente.getPasswordCliente()));
 
-        if(!(error.length() > 0)){
-            validador.clear();
-            cliente.setNombreCliente(request.getParameter("clientFirstName"));
-            session.setAttribute("clientFirstName", cliente.getNombreCliente());
-            validador.add(new ValidacionLetrasConEspacio(cliente.getNombreCliente()));
-            validador.add(new ValidacionLongitud(cliente.getNombreCliente(),3,50));
-            error += validar(validador);
-
-            if(!(error.length() > 0)){
-                validador.clear();
-                cliente.setApellidosCliente(request.getParameter("clientLastName"));
-                session.setAttribute("clientLastName", cliente.getApellidosCliente());
-                validador.add(new ValidacionLetrasConEspacio(cliente.getApellidosCliente()));
-                validador.add(new ValidacionLongitud(cliente.getApellidosCliente(),3,100));
-                error += validar(validador);
-                if(!(error.length() > 0)){
-                    validador.clear();
-                    cliente.setCodigoPostalClient(request.getParameter("clientCP"));
-                    session.setAttribute("clientCP", cliente.getCodigoPostalClient());
-                    validador.add(new ValidacionCodigoPostal(cliente.getCodigoPostalClient()));
-                    error += validar(validador);
-                    if(!(error.length() > 0)){
-                        validador.clear();
-                        cliente.setDomicilioCliente(request.getParameter("DomicilioCliente"));
-                        session.setAttribute("DomicilioCliente", cliente.getDomicilioCliente());
-                        validador.add(new ValidarDomicilio(cliente.getDomicilioCliente()));
-                        validador.add(new ValidacionLongitud(cliente.getDomicilioCliente(),2,100));
-                        error += validar(validador);
-                        if(!(error.length() > 0)){
-                            validador.clear();
-                            cliente.setTelefonoCliente(request.getParameter("TelefonoFijo"));
-                            session.setAttribute("TelefonoFijo",cliente.getTelefonoCliente());
-                            validador.add(new ValidacionTelefonoSpain(cliente.getTelefonoCliente()));
-                            error += validar(validador);
-                            if(!(error.length() > 0)){
-                                validador.clear();
-                                cliente.setMovilCliente(request.getParameter("numeroMovil"));
-                                session.setAttribute("numeroMovil",cliente.getMovilCliente());
-                                validador.add(new ValidacionTelefonoSpain(cliente.getMovilCliente()));
-                                error += validar(validador);
-                                if(!(error.length() > 0)){
-                                    validador.clear();
-                                    cliente.setFechaNacimiento(request.getParameter("FechaNacimiento"));
-                                    session.setAttribute("FechaNacimiento",cliente.getFechaNacimiento());
-                                    validador.add(new ValidacionFecha(cliente.getFechaNacimiento()));
-                                    error += validar(validador);
-                                    if(!(error.length() > 0)){
-                                        validador.clear();
-                                        cliente.setSexoCliente(request.getParameter("clientSexo"));
-                                        session.setAttribute("clientSexo",cliente.getSexoCliente());
-                                        validador.add(new ValidacionSexo(cliente.getSexoCliente()));
-                                        error += validar(validador);
-                                        if(!(error.length() > 0)){
-                                            validador.clear();
-                                            cliente.setEmailCliente(request.getParameter("emailCliente"));
-                                            session.setAttribute("emailCliente",cliente.getEmailCliente());
-                                            validador.add(new ValidacionEmail(cliente.getEmailCliente()));
-                                            error += validar(validador);
-                                        }
-                                        if(!(error.length() > 0)){
-                                            validador.clear();
-                                            cliente.setUsuarioCliente(request.getParameter("clientUsuario"));
-                                            session.setAttribute("clientUsuario",cliente.getUsuarioCliente());
-                                            validador.add(new ValidacionUsuario(cliente.getUsuarioCliente()));
-                                            error += validar(validador);
-                                            if(!(error.length() > 0)){
-                                                validador.clear();
-                                                cliente.setPasswordCliente(request.getParameter("password"));
-                                                session.setAttribute("password",cliente.getPasswordCliente());
-                                                validador.add(new ValidacionPassword(cliente.getPasswordCliente()));
-                                                error += validar(validador);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                }
+        for (int i = 0; i < validador.size(); i++) {
+            if(!validador.get(i).validar()){
+                error += validador.get(i).getError();
             }
         }
 
@@ -135,13 +79,16 @@ public class ValidarClientInsertController extends HttpServlet {
             cliente.setImagenCliente(cliente.getNifCliente() + ".png");
             System.out.println(cliente.toString());
             rd = request.getRequestDispatcher("index.jsp");
-          //    cliente para BD
+            //    cliente para BD
             ClienteDAO clienteDAO = new ClienteDAO();
-           if (clienteDAO.add_cliente(cliente)>0){
-               request.setAttribute("mensaje", "Cliente add");
-           }
-           else request.setAttribute("mensaje", "Cliente NO add");
-
+            try {
+                clienteDAO.add_cliente_procedure(cliente);
+                request.setAttribute("mensaje", "Cliente add");
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
         }
 
@@ -152,16 +99,6 @@ public class ValidarClientInsertController extends HttpServlet {
         doPost(request, response);
     }
 
-    private String validar(List<IValidacion> validador ) {
-
-        for(IValidacion vali:validador){
-           //System.out.println(vali);
-            if (!vali.validar()) {
-                return vali.getError();
-            }
-        }
-        return "";
-    }
     private String getFileName(Part part) {
         for (String cd : part.getHeader("content-disposition").split(";")) {
             if (cd.trim().startsWith("filename")) {
@@ -174,9 +111,9 @@ public class ValidarClientInsertController extends HttpServlet {
 
     private void clientFotoLoad(HttpServletRequest request, HttpServletResponse response ) throws IOException, ServletException {
 
-        Part filePart = request.getPart("clientImage");
+        Part filePart = request.getPart("ImagenCliente");
         String fileName = getFileName(filePart);
-        String dniCliente = request.getParameter("dniCliente");
+        String dniCliente = request.getParameter("NifCliente");
 
         if (fileName.length() > 2) {
 
@@ -206,36 +143,5 @@ public class ValidarClientInsertController extends HttpServlet {
         }
     }
 
-    private void listParam(HttpServletRequest request, HttpServletResponse response ) throws IOException {
-
-        Enumeration<String> parameterNames = request.getParameterNames();
-
-
-        PrintWriter out = response.getWriter();  //out.println("TestServlet says hi<br/>");
-
-        while (parameterNames.hasMoreElements()) {
-
-            String paramName = parameterNames.nextElement();
-
-            out.write(paramName);
-
-            out.write("=");
-
-            String[] paramValues = request.getParameterValues(paramName);
-
-            for (int i = 0; i < paramValues.length; i++) {
-
-                String paramValue = paramValues[i];
-
-                out.write("\t" + paramValue);
-
-                out.write("\n");
-
-            }
-
-        }
-        out.close();
-
-    }
 }
 
